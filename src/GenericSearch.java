@@ -32,6 +32,7 @@ public abstract class GenericSearch {
 
     while (!nodes.isEmpty()) {
       Node currentNode = nodes.poll();
+      System.out.println("currentNode: " + currentNode.getState());
       nodesExpanded++;
 
       if (goalTest(currentNode.getState())) {

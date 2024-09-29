@@ -19,17 +19,20 @@ public class WaterSortSearch extends GenericSearch {
     List<Stack<Character>> bottles = new ArrayList<>();
     for (int i = 2; i < stateParts.length; i++) {
       Stack<Character> bottle = new Stack<>();
-      for (int j = stateParts[i].length() - 1; j >= 0; j--) {
-        bottle.push(stateParts[i].charAt(j));
+      String[] layers = stateParts[i].split(","); // Split by comma to get each color layer
+      for (int j = layers.length - 1; j >= 0; j--) {
+        bottle.push(layers[j].charAt(0)); // Push the first character of the color (assuming 'b' for blue, etc.)
       }
       bottles.add(bottle);
     }
+    System.out.println("bottles: " + bottles);
 
     // Try to pour from every bottle to every other bottle
     for (int i = 0; i < numberOfBottles; i++) {
       for (int j = 0; j < numberOfBottles; j++) {
         if (i != j && canPour(bottles.get(i), bottles.get(j), bottleCapacity)) {
           // Create a deep copy of the current state
+          System.out.println("can pour from " + i + "to " + j);
           List<Stack<Character>> newBottles = deepCopyBottles(bottles);
 
           // Perform the pour operation
@@ -54,33 +57,73 @@ public class WaterSortSearch extends GenericSearch {
 
   // Helper method to check if pouring from bottle i to bottle j is allowed
   private boolean canPour(Stack<Character> fromBottle, Stack<Character> toBottle, int bottleCapacity) {
-    if (fromBottle.isEmpty() || toBottle.size() == bottleCapacity) {
-      return false; // Cannot pour if fromBottle is empty or toBottle is full
+    System.out.println("fromBottle: " + fromBottle);
+    System.out.println("toBottle: " + toBottle);
+
+    // Check if the fromBottle is truly empty (contains only 'e')
+    if (isTrulyEmpty(fromBottle)) {
+      System.out.println("return false - fromBottle is empty");
+      return false; // Cannot pour if fromBottle is empty
     }
 
-    if (toBottle.isEmpty()) {
+    // Check if the toBottle is full
+    if (toBottle.size() == bottleCapacity && !isTrulyEmpty(toBottle)) {
+      System.out.println("return false - toBottle is full");
+      return false; // Cannot pour if toBottle is full and not entirely 'e'
+    }
+
+    // If the toBottle is completely empty (filled with 'e'), we can pour into it
+    if (isTrulyEmpty(toBottle)) {
+      System.out.println("return true - toBottle is empty");
       return true; // Can always pour into an empty bottle
     }
 
     // Can pour if the top layers have the same color
-    return fromBottle.peek().equals(toBottle.peek());
+    if (fromBottle.peek().equals(toBottle.peek())) {
+      System.out.println("return true - can pour");
+      return true;
+    }
+
+    System.out.println("return false - top colors don't match");
+    return false; // Cannot pour if the top colors don't match
+  }
+
+  // Helper method to check if a bottle contains only 'e' (empty layers)
+  private boolean isTrulyEmpty(Stack<Character> bottle) {
+    for (char layer : bottle) {
+      if (layer != 'e') {
+        return false; // Not empty if there's any non-'e' element
+      }
+    }
+    return true; // All layers are 'e', so it's empty
   }
 
   // Helper method to perform the pour operation from one bottle to another
   private void pour(Stack<Character> fromBottle, Stack<Character> toBottle, int bottleCapacity) {
     char colorToPour = fromBottle.peek();
+
+    // Ensure we don't pour 'e' from fromBottle
+    if (colorToPour == 'e') {
+      return; // Nothing to pour if the top layer is empty ('e')
+    }
+
     int layersToPour = 0;
 
-    // Count how many layers of the same color are on top
+    // Count how many layers of the same color are on top in the fromBottle
     while (!fromBottle.isEmpty() && fromBottle.peek() == colorToPour) {
       layersToPour++;
-      fromBottle.pop();
+      fromBottle.pop(); // Remove the top layer from fromBottle
     }
 
     // Only pour as many layers as there is space in the toBottle
     int actualLayersToPour = Math.min(layersToPour, bottleCapacity - toBottle.size());
     for (int i = 0; i < actualLayersToPour; i++) {
       toBottle.push(colorToPour);
+    }
+
+    // If there is still space in the toBottle, fill with 'e' (empty)
+    while (toBottle.size() < bottleCapacity) {
+      toBottle.push('e');
     }
   }
 
@@ -98,8 +141,14 @@ public class WaterSortSearch extends GenericSearch {
         stateBuilder.append(';');
       }
       Stack<Character> bottle = bottles.get(i);
+
+      // Add actual layers, if there are empty slots, fill them with 'e'
       for (int j = bottle.size() - 1; j >= 0; j--) {
         stateBuilder.append(bottle.get(j));
+      }
+      // Fill remaining spaces in bottle with 'e' if necessary
+      for (int j = bottle.size(); j < bottleCapacity; j++) {
+        stateBuilder.append('e');
       }
     }
 
@@ -121,13 +170,17 @@ public class WaterSortSearch extends GenericSearch {
 
   // Helper method to calculate the cost of the pour (number of layers poured)
   private double calculatePourCost(Stack<Character> fromBottle, Stack<Character> toBottle) {
+    if (fromBottle.isEmpty() || fromBottle.peek() == 'e') {
+      return 0; // Nothing to pour if fromBottle is empty or top layer is 'e'
+    }
+
     char colorToPour = fromBottle.peek();
     int layersToPour = 0;
 
-    // Count how many layers of the same color are on top
-    while (!fromBottle.isEmpty() && fromBottle.peek() == colorToPour) {
+    // Count how many layers of the same color are on top without modifying the
+    // fromBottle
+    for (int i = fromBottle.size() - 1; i >= 0 && fromBottle.get(i) == colorToPour; i--) {
       layersToPour++;
-      fromBottle.pop();
     }
 
     // Only pour as many layers as there is space in the toBottle
