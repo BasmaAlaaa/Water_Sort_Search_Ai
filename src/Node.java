@@ -7,9 +7,10 @@ public class Node {
     private double heuristic; // h(n): Estimated cost to reach the goal from this node
 
     // Constructor
-    public Node(String state, Node parent, double pathCost, double heuristic) {
+    public Node(String state, Node parent, int depth, double pathCost, double heuristic) {
         this.state = state;
         this.parent = parent;
+        this.depth = depth;
         this.pathCost = pathCost;
         this.heuristic = heuristic;
     }
@@ -19,6 +20,7 @@ public class Node {
     public Node getParent() { return parent; }
     public double getPathCost() { return pathCost; }
     public double getHeuristic() { return heuristic; }
+    public int getDepth() { return depth; }
 
     // Method to get the total cost for A* search
     public double getTotalCost() { return pathCost + heuristic; }
