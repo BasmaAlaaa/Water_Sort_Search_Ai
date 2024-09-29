@@ -1,8 +1,6 @@
 import java.util.*;
 
 public abstract class GenericSearch {
-    // Search strategies use the generic search framework defined here
-
     // Method to check if a given state is a goal
     public abstract boolean goalTest(String state);
 
@@ -11,50 +9,55 @@ public abstract class GenericSearch {
 
     // Method to implement a search strategy based on a queuing function
     public String search(Node initialNode, String strategy) {
-        // Initialize data structures based on the strategy
-        Queue<Node> frontier;
-        Set<String> explored = new HashSet<>();
-        int nodesExpanded = 0;
+        // Initialize nodes (the frontier)
+        Queue<Node> nodes;
 
+        // Choose the data structure for nodes based on the strategy
         switch (strategy) {
             case "BF": // Breadth-First Search
-                frontier = new LinkedList<>();
+                nodes = new LinkedList<>(); // FIFO Queue
                 break;
             case "DF": // Depth-First Search
-                frontier = new ArrayDeque<>();
+                nodes = new ArrayDeque<>(); // LIFO Stack
                 break;
             case "UC": // Uniform Cost Search
-            case "GR1":
-            case "GR2":
-            case "AS1":
-            case "AS2": 
+            case "GR1": // Greedy Search with Heuristic 1
+            case "GR2": // Greedy Search with Heuristic 2
+            case "AS1": // A* Search with Heuristic 1
+            case "AS2": // A* Search with Heuristic 2
                 // Priority Queue for cost-based search strategies
-                frontier = new PriorityQueue<>(Comparator.comparing(Node::getTotalCost));
+                nodes = new PriorityQueue<>(Comparator.comparing(Node::getTotalCost));
                 break;
             default:
                 throw new IllegalArgumentException("Invalid strategy provided!");
         }
 
         // Add the initial node to the frontier
-        frontier.add(initialNode);
+        nodes.add(initialNode);
+        Set<String> explored = new HashSet<>();
+        int nodesExpanded = 0;
 
-        while (!frontier.isEmpty()) {
-            Node currentNode = frontier.poll();
+        while (!nodes.isEmpty()) {
+            Node currentNode = nodes.poll(); // REMOVE-FRONT(nodes)
             nodesExpanded++;
-            explored.add(currentNode.getState());
 
             if (goalTest(currentNode.getState())) {
-                return constructSolution(currentNode, nodesExpanded);
+                return constructSolution(currentNode, nodesExpanded); // If goal is found, return the solution
             }
 
-            for (Node successor : generateSuccessors(currentNode)) {
-                if (!explored.contains(successor.getState()) && !frontier.contains(successor)) {
-                    frontier.add(successor);
+            // Expand the current node
+            explored.add(currentNode.getState());
+            List<Node> successors = generateSuccessors(currentNode);
+
+            // Add successors to the queue based on the queuing function
+            for (Node successor : successors) {
+                if (!explored.contains(successor.getState()) && !nodes.contains(successor)) {
+                    nodes.add(successor);
                 }
             }
         }
 
-        return "NOSOLUTION";
+        return "NOSOLUTION"; // If no solution is found, return failure
     }
 
     // Method to construct the solution path once a goal is found
