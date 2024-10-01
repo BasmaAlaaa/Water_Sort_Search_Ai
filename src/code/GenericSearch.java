@@ -1,3 +1,4 @@
+package code;
 import java.util.*;
 
 public abstract class GenericSearch {
@@ -32,6 +33,7 @@ public abstract class GenericSearch {
 
     while (!nodes.isEmpty()) {
       Node currentNode = nodes.poll();
+      System.out.println("currentNode: " + currentNode.getState());
       nodesExpanded++;
 
       if (goalTest(currentNode.getState())) {
@@ -56,7 +58,7 @@ public abstract class GenericSearch {
     double totalCost = goalNode.getPathCost();
 
     Node currentNode = goalNode;
-    while (currentNode.getParent() != null) {
+    while (currentNode.getParent() != null) { 
       plan.add(0, currentNode.getState());
       currentNode = currentNode.getParent();
     }
