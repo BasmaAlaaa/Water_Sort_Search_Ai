@@ -1,3 +1,4 @@
+package code;
 public class Node {
   private String state;
   private Node parent;
