@@ -3,246 +3,153 @@ import java.util.*;
 
 public class WaterSortSearch extends GenericSearch {
 
-  // Implement the abstract method for generating successors specific to the
-  // water-sort puzzle
-  @Override
-  public List<Node> generateSuccessors(Node node) {
-    List<Node> successors = new ArrayList<>();
-    String currentState = node.getState();
+    private List<Bottle> initialState;
 
-    // Parse the current state to get information about bottles and layers
-    String[] stateParts = currentState.split(";");
-    int numberOfBottles = Integer.parseInt(stateParts[0]);
-    int bottleCapacity = Integer.parseInt(stateParts[1]);
-
-    // Ensure that the stateParts array has the correct length
-    if (stateParts.length != 2 + numberOfBottles) {
-      throw new IllegalStateException("State string does not match expected format.");
+    // Constructor that initializes the water sort puzzle with the initial state (a list of bottles)
+    public WaterSortSearch(String initialStateString) {
+        this.initialState = parseInitialState(initialStateString);
     }
 
-    // Convert each bottle's contents into a stack representation for easier
-    // manipulation
-    List<Stack<Character>> bottles = new ArrayList<>();
-    for (int i = 2; i < 2 + numberOfBottles; i++) {
-      Stack<Character> bottle = new Stack<>();
-      String bottleStr = stateParts[i];
-      if (!bottleStr.isEmpty()) {
-        String[] layers = bottleStr.split(","); // Split by comma to get each color layer
-        for (int j = layers.length - 1; j >= 0; j--) {
-          if (!layers[j].equals("e"))
-            bottle.push(layers[j].charAt(0)); // Push the first character of the color
+    // Parses the initial state string and creates a list of Bottle objects
+    private List<Bottle> parseInitialState(String initialStateString) {
+        String[] parts = initialStateString.split(";");
+        int numberOfBottles = Integer.parseInt(parts[0]);
+        int bottleCapacity = Integer.parseInt(parts[1]);
+
+        List<Bottle> bottles = new ArrayList<>();
+        for (int i = 0; i < numberOfBottles; i++) {
+            String[] colors = parts[2 + i].split(",");
+            Bottle bottle = new Bottle(bottleCapacity);
+            for (String color : colors) {
+                if (!color.equals("e")) { // 'e' represents an empty layer
+                    bottle.addLayer(color);
+                }
+            }
+            bottles.add(bottle);
         }
-      }
-      // Else, bottle remains empty
-      bottles.add(bottle);
+        return bottles;
     }
-    System.out.println(bottles);
 
-    // Explore all possible pour actions from each bottle to every other bottle
-    for (int i = 0; i < numberOfBottles; i++) {
-      for (int j = 0; j < numberOfBottles; j++) {
-        if (i != j && canPour(bottles.get(i), bottles.get(j), bottleCapacity)) {
-
-          // Create a deep copy of the current state
-          List<Stack<Character>> newBottles = deepCopyBottles(bottles);
-
-          // Perform the pour operation
-          pour(newBottles.get(i), newBottles.get(j), bottleCapacity);
-
-          // Generate the new state string
-          String newState = generateStateString(numberOfBottles, bottleCapacity, newBottles);
-
-          // Calculate the new path cost (increment by the number of layers poured)
-          double newPathCost = node.getPathCost() + calculatePourCost(bottles.get(i), bottles.get(j), bottleCapacity);
-          double heuristic = calculateHeuristic(newState); // Heuristic function
-
-          // Create a new successor node and add it to the list
-          Node successor = new Node(newState, node, node.getDepth() + 1, newPathCost, heuristic);
-          successors.add(successor);
+    // Check if the node represents the goal state
+    @Override
+    public boolean isGoalState(Node node) {
+        List<Bottle> bottles = node.getState();
+        for (Bottle bottle : bottles) {
+            if (!isBottleSorted(bottle)) {
+                return false;
+            }
         }
-      }
+        return true;
     }
 
-    return successors;
-  }
-
-  // Helper method to check if pouring from bottle i to bottle j is allowed
-  private boolean canPour(Stack<Character> fromBottle, Stack<Character> toBottle, int bottleCapacity) {
-    // Check if the fromBottle has something to pour
-    if (fromBottle.isEmpty()) {
-      return false; // Cannot pour if fromBottle is empty
-    }
-
-    // Check if the toBottle has space to accept the pour
-    if (toBottle.size() == bottleCapacity) {
-      return false; // Cannot pour if toBottle is already full
-    }
-
-    // Can always pour into an empty bottle
-    if (toBottle.isEmpty()) {
-      return true;
-    }
-
-    // Can pour if the top layers of both bottles match
-    return fromBottle.peek().equals(toBottle.peek());
-  }
-
-  // Helper method to perform the pour operation from one bottle to another
-  private void pour(Stack<Character> fromBottle, Stack<Character> toBottle, int bottleCapacity) {
-    char colorToPour = fromBottle.peek();
-
-    // Count how many layers of the same color are on top in the fromBottle
-    int layersAvailableToPour = 0;
-    for (int i = fromBottle.size() - 1; i >= 0 && fromBottle.get(i) == colorToPour; i--) {
-      layersAvailableToPour++;
-    }
-
-    // Determine how many layers we can actually pour
-    int spaceInToBottle = bottleCapacity - toBottle.size();
-    int actualLayersToPour = Math.min(layersAvailableToPour, spaceInToBottle);
-
-    // Pop actualLayersToPour layers from fromBottle
-    for (int i = 0; i < actualLayersToPour; i++) {
-      fromBottle.pop();
-    }
-
-    // Push actualLayersToPour layers to toBottle
-    for (int i = 0; i < actualLayersToPour; i++) {
-      toBottle.push(colorToPour);
-    }
-  }
-
-  // Helper method to generate the state string from a list of bottles
-  // Helper method to generate the state string from a list of bottles
-  // Helper method to generate the state string from a list of bottles
-  private String generateStateString(int numberOfBottles, int bottleCapacity, List<Stack<Character>> bottles) {
-    StringBuilder stateBuilder = new StringBuilder();
-
-    // Add the number of bottles and bottle capacity as the first two parts of the
-    // state
-    stateBuilder.append(numberOfBottles).append(";").append(bottleCapacity);
-
-    // Add the content of each bottle
-    for (int i = 0; i < bottles.size(); i++) {
-      stateBuilder.append(';');
-      Stack<Character> bottle = bottles.get(i);
-
-      if (!bottle.isEmpty()) {
-        // Add actual layers
-        for (int j = bottle.size() - 1; j >= 0; j--) {
-          stateBuilder.append(bottle.get(j));
-          if (j > 0) {
-            stateBuilder.append(",");
-          }
+    // Helper method to check if a single bottle is sorted (i.e., all layers are of the same color or empty)
+    private boolean isBottleSorted(Bottle bottle) {
+        if (bottle.isEmpty()) return true;
+        String topColor = bottle.topLayer();
+        for (String layer : bottle.getLayers()) {
+            if (!layer.equals(topColor)) {
+                return false;
+            }
         }
-      }
-      // For empty bottles, we append nothing after the ';'
+        return true;
     }
 
-    return stateBuilder.toString();
-  }
+    // Return the initial state as a Node
+    @Override
+    public Node getInitialState() {
+        return new Node(initialState, null, null, 0);
+    }
 
-  // Helper method to create a deep copy of the bottles
-  private List<Stack<Character>> deepCopyBottles(List<Stack<Character>> bottles) {
-    List<Stack<Character>> newBottles = new ArrayList<>();
-    for (Stack<Character> bottle : bottles) {
-      newBottles.add(new Stack<Character>() {
-        {
-          addAll(bottle);
+    // Expands the current node into its possible children (all valid pour actions)
+    @Override
+    public List<Node> expandNode(Node node) {
+        List<Node> children = new ArrayList<>();
+        List<Bottle> currentState = node.getState();
+
+        for (int i = 0; i < currentState.size(); i++) {
+            for (int j = 0; j < currentState.size(); j++) {
+                if (i != j && isValidAction(currentState.get(i), currentState.get(j))) {
+                    List<Bottle> newState = deepCopyState(currentState);
+                    newState.get(i).pourInto(newState.get(j));
+
+                    String action = "pour_" + i + "_" + j;
+                    Node child = new Node(newState, node, action, node.getPathCost() + 1);
+                    children.add(child);
+                }
+            }
         }
-      });
-    }
-    System.out.println("SSSSSSSSSSSSSSSSSSSSSS" + newBottles);
-    return newBottles;
-  }
-
-  // Helper method to calculate the cost of the pour (number of layers poured)
-  private double calculatePourCost(Stack<Character> fromBottle, Stack<Character> toBottle, int bottleCapacity) {
-    if (fromBottle.isEmpty()) {
-      return 0; // Nothing to pour if fromBottle is empty
+        return children;
     }
 
-    char colorToPour = fromBottle.peek();
-    int layersAvailableToPour = 0;
-
-    // Count how many layers of the same color are on top without modifying the
-    // fromBottle
-    for (int i = fromBottle.size() - 1; i >= 0 && fromBottle.get(i) == colorToPour; i--) {
-      layersAvailableToPour++;
+    // Helper method to check if pouring from one bottle to another is valid
+    private boolean isValidAction(Bottle from, Bottle to) {
+        return !from.isEmpty() && (to.isEmpty() || from.topLayer().equals(to.topLayer())) && !to.isFull();
     }
 
-    // Only pour as many layers as there is space in the toBottle
-    int spaceInToBottle = bottleCapacity - toBottle.size();
-    return Math.min(layersAvailableToPour, spaceInToBottle);
-  }
-
-  // Heuristic: Counts the number of non-homogeneous bottles
-  private double calculateHeuristic(String state) {
-    // Parse the current state to get information about bottles
-    String[] stateParts = state.split(";");
-    // int numberOfBottles = Integer.parseInt(stateParts[0]);
-
-    int nonHomogeneousCount = 0;
-
-    // Start checking bottles from the third part of the state (index 2)
-    for (int i = 2; i < stateParts.length; i++) {
-      String bottle = stateParts[i];
-
-      if (bottle.isEmpty()) {
-        continue; // Empty bottles are considered homogeneous
-      }
-
-      // Check if all layers in the bottle are of the same color
-      char firstColor = bottle.charAt(0);
-      boolean isHomogeneous = true;
-
-      for (int j = 1; j < bottle.length(); j++) {
-        if (bottle.charAt(j) != firstColor) {
-          isHomogeneous = false;
-          break;
+    // Helper method to create a deep copy of the current state (list of bottles)
+    private List<Bottle> deepCopyState(List<Bottle> state) {
+        List<Bottle> newState = new ArrayList<>();
+        for (Bottle bottle : state) {
+            Bottle newBottle = new Bottle(bottle.emptySpaces() + bottle.getLayers().size());
+            for (String layer : bottle.getLayers()) {
+                newBottle.addLayer(layer);
+            }
+            newState.add(newBottle);
         }
-      }
-
-      // If the bottle is not homogeneous, count it
-      if (!isHomogeneous) {
-        nonHomogeneousCount++;
-      }
+        return newState;
     }
 
-    // Return the number of non-homogeneous bottles as the heuristic
-    return nonHomogeneousCount;
-  }
+    // Solve method as described in the project requirements
+    public String solve(String initialState, String strategy, boolean visualize) {
+        WaterSortSearch searchProblem = new WaterSortSearch(initialState);
+        Node solutionNode = searchProblem.search(strategy);
 
-  @Override
-  public boolean goalTest(String state) {
-    // Parse the current state to get the information about bottles and their layers
-    String[] stateParts = state.split(";");
-    int numberOfBottles = Integer.parseInt(stateParts[0]);
-
-    for (int i = 2; i < 2 + numberOfBottles; i++) {
-      String bottle = stateParts[i];
-
-      if (bottle.isEmpty()) {
-        // Empty bottle is considered sorted
-        continue;
-      }
-
-      // Check if all layers in the bottle are of the same color
-      char firstColor = bottle.charAt(0);
-      for (int j = 1; j < bottle.length(); j++) {
-        if (bottle.charAt(j) != firstColor && bottle.charAt(j) != ',') {
-          return false; // If there's a different color, it's not sorted
+        if (solutionNode == null) {
+            return "NOSOLUTION";
         }
-      }
+
+        String plan = solutionNode.getSolutionPath();
+        int pathCost = solutionNode.getPathCost();
+        int nodesExpanded = getNodesExpanded(); // Implement this based on your expansion count
+
+        if (visualize) {
+            visualizeSolution(solutionNode);
+        }
+
+        return String.format("%s;%d;%d", plan, pathCost, nodesExpanded);
     }
 
-    // If all bottles are uniform or empty, return true
-    return true;
-  }
+    // Helper method to visualize the solution (prints to console for debugging)
+    private void visualizeSolution(Node node) {
+        Node currentNode = node;
+        Stack<Node> path = new Stack<>();
 
-  // The main solve method to apply the search strategy
-  public String solve(String initialState, String strategy, boolean visualize) {
-    Node initialNode = new Node(initialState, null, 0, 0, 0);
-    return search(initialNode, strategy);
-  }
+        while (currentNode != null) {
+            path.push(currentNode);
+            currentNode = currentNode.getParent();
+        }
+
+        System.out.println("Solution Visualization:");
+        while (!path.isEmpty()) {
+            Node n = path.pop();
+            if (n.getAction() != null) {
+                System.out.println("Action: " + n.getAction());
+            }
+            for (Bottle bottle : n.getState()) {
+                bottle.printBottle(); // Use the printBottle method to visualize the state of each bottle
+            }
+            System.out.println("----------------------");
+        }
+    }
+
+    // Helper method to track nodes expanded (increment this during expansion)
+    private int nodesExpanded = 0;
+
+    private void incrementNodesExpanded() {
+        nodesExpanded++;
+    }
+
+    private int getNodesExpanded() {
+        return nodesExpanded;
+    }
 }
