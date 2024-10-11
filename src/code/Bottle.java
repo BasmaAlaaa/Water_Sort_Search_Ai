@@ -62,6 +62,10 @@ public class Bottle {
     return copy;
   }
 
+  public Stack<Character> getLayers() {
+    return layers;
+  }
+
   @Override
   public String toString() {
     return layers.toString();

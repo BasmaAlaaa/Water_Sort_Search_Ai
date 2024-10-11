@@ -4,7 +4,7 @@ import java.util.*;
 public abstract class GenericSearch {
   public abstract boolean goalTest(String state);
 
-  public abstract List<Node> generateSuccessors(Node node);
+  public abstract List<Node> generateSuccessors(Node node, String strategy);
 
   public String search(Node initialNode, String strategy) {
     Queue<Node> nodes;
@@ -41,7 +41,7 @@ public abstract class GenericSearch {
       }
 
       explored.add(currentNode.getState());
-      List<Node> successors = generateSuccessors(currentNode);
+      List<Node> successors = generateSuccessors(currentNode, strategy);
 
       for (Node successor : successors) {
         if (!explored.contains(successor.getState()) && !nodes.contains(successor)) {
