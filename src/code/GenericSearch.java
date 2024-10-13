@@ -3,25 +3,22 @@ import java.util.*;
 
 public abstract class GenericSearch {
 
-    // Abstract method that each search problem will implement to generate a goal state check
+    // Abstract methods for the specific search problem
     public abstract boolean isGoalState(Node node);
 
-    // Abstract method to return the initial state as a Node
     public abstract Node getInitialState();
 
-    // Abstract method to define how to expand a node into child nodes (specific to the problem)
     public abstract List<Node> expandNode(Node node);
 
     // Method to perform a generic search using different strategies
     public Node search(String strategy) {
-        // Frontier (nodes to be explored) depending on the strategy
         Queue<Node> frontier;
         switch (strategy) {
             case "BF": // Breadth-First Search
                 frontier = new LinkedList<>();
                 break;
             case "DF": // Depth-First Search
-                frontier = new ArrayDeque<>(); // Stack-like behavior for DFS
+                frontier = new ArrayDeque<>();
                 break;
             case "ID": // Iterative Deepening Search
                 return iterativeDeepeningSearch();
@@ -35,31 +32,6 @@ public abstract class GenericSearch {
                 throw new IllegalArgumentException("Invalid strategy: " + strategy);
         }
 
-        Set<Node> explored = new HashSet<>(); // Explored set to avoid cycles
-        frontier.add(getInitialState());
-
-        while (!frontier.isEmpty()) {
-            Node node = frontier.poll(); // Get the next node to explore
-
-            // If the goal is found, return the solution path
-            if (isGoalState(node)) {
-                return node;
-            }
-
-            // Expand the node and add its children to the frontier
-            explored.add(node);
-            for (Node child : expandNode(node)) {
-                if (!explored.contains(child)) {
-                    frontier.add(child);
-                }
-            }
-        }
-        return null; // No solution found
-    }
-
-    // Uniform Cost, Greedy, and A* search strategies use a priority queue (informed search)
-    private Node informedSearch(String strategy) {
-        PriorityQueue<Node> frontier = new PriorityQueue<>(Comparator.comparingInt(this::getNodePriority));
         Set<Node> explored = new HashSet<>();
         frontier.add(getInitialState());
 
@@ -77,12 +49,35 @@ public abstract class GenericSearch {
                 }
             }
         }
-        return null; // No solution found
+        return null;
+    }
+
+    // Informed search method with priority queue handling for UCS, Greedy, and A*
+    private Node informedSearch(String strategy) {
+        PriorityQueue<Node> frontier = new PriorityQueue<>(Comparator.comparingInt(node -> getNodePriority(node, strategy)));
+        Set<Node> explored = new HashSet<>();
+        frontier.add(getInitialState());
+
+        while (!frontier.isEmpty()) {
+            Node node = frontier.poll();
+
+            if (isGoalState(node)) {
+                return node;
+            }
+
+            explored.add(node);
+            for (Node child : expandNode(node)) {
+                if (!explored.contains(child)) {
+                    frontier.add(child);
+                }
+            }
+        }
+        return null;
     }
 
     // Iterative Deepening Search (ID)
     private Node iterativeDeepeningSearch() {
-        for (int depthLimit = 0; ; depthLimit++) {
+        for (int depthLimit = 0;; depthLimit++) {
             Node result = depthLimitedSearch(getInitialState(), depthLimit);
             if (result != null) {
                 return result;
@@ -108,8 +103,5 @@ public abstract class GenericSearch {
     }
 
     // Heuristic function for priority queue, based on the search strategy
-    private int getNodePriority(Node node) {
-        // Return the node's cost depending on the strategy (dummy for now)
-        return node.getPathCost(); // You can implement the actual heuristic here
-    }
+    protected abstract int getNodePriority(Node node, String strategy);
 }
