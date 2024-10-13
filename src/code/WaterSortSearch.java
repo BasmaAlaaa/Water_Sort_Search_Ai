@@ -13,6 +13,7 @@ public class WaterSortSearch extends GenericSearch {
   }
 
   // Parses the initial state string and creates a list of Bottle objects
+  // Parses the initial state string and creates a list of Bottle objects
   private List<Bottle> parseInitialState(String initialStateString) {
     String[] parts = initialStateString.split(";");
     int numberOfBottles = Integer.parseInt(parts[0]);
@@ -21,10 +22,17 @@ public class WaterSortSearch extends GenericSearch {
     List<Bottle> bottles = new ArrayList<>();
     for (int i = 0; i < numberOfBottles; i++) {
       String[] colors = parts[2 + i].split(",");
+
+      // Reverse the colors array so that the first color becomes the bottom and last
+      // is the top
+      List<String> reversedColors = Arrays.asList(colors);
+      Collections.reverse(reversedColors); // Reverse the order
+
+      // Create a new bottle and add the reversed layers
       Bottle bottle = new Bottle(bottleCapacity);
-      for (String color : colors) {
+      for (String color : reversedColors) {
         if (!color.equals("e")) { // 'e' represents an empty layer
-          bottle.addLayer(color);
+          bottle.addLayer(color); // Add the layer in the reversed order
         }
       }
       bottles.add(bottle);
