@@ -47,15 +47,26 @@ public class WaterSortSearch extends GenericSearch {
   // Helper method to check if a single bottle is sorted (i.e., all layers are of
   // the same color or empty)
   private boolean isBottleSorted(Bottle bottle) {
-    if (bottle.isEmpty())
-      return true;
-    String topColor = bottle.topLayer();
-    for (String layer : bottle.getLayers()) {
-      if (!layer.equals(topColor)) {
-        return false;
-      }
+    // Bottle is sorted if it is empty or if it is full and all layers are the same
+    // color
+    if (bottle.isEmpty()) {
+      return true; // Completely empty bottle is sorted
     }
-    return true;
+
+    String topColor = bottle.topLayer();
+    Stack<String> layers = bottle.getLayers();
+
+    // Check if the bottle is completely full with the same color
+    if (layers.size() == bottle.getCapacity()) { // Ensure it's completely full
+      for (String layer : layers) {
+        if (!layer.equals(topColor)) {
+          return false; // If any layer is different, it's not sorted
+        }
+      }
+      return true; // All layers are the same color and bottle is full
+    }
+
+    return false; // If the bottle is neither empty nor full with the same color, it's not sorted
   }
 
   // Return the initial state as a Node

@@ -1,4 +1,5 @@
 package code;
+
 import java.util.Stack;
 
 public class Bottle {
@@ -65,6 +66,10 @@ public class Bottle {
   // Check how many empty spaces are left in the bottle
   public int emptySpaces() {
     return capacity - layers.size();
+  }
+
+  public int getCapacity() {
+    return capacity;
   }
 
   // Pour layers from this bottle to another bottle
