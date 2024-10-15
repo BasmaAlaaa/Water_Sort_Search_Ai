@@ -249,10 +249,6 @@ public class WaterSortSearch extends GenericSearch {
   // Helper method to track nodes expanded (increment this during expansion)
   private static int nodesExpanded = 0;
 
-  private void incrementNodesExpanded() {
-    nodesExpanded++;
-  }
-
   private static int getNodesExpanded() {
     return nodesExpanded;
   }
