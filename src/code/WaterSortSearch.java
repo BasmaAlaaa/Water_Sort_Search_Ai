@@ -93,10 +93,12 @@ public class WaterSortSearch extends GenericSearch {
       for (int j = 0; j < currentState.size(); j++) {
         if (i != j && isValidAction(currentState.get(i), currentState.get(j))) {
           List<Bottle> newState = deepCopyState(currentState);
-          newState.get(i).pourInto(newState.get(j));
+          int layers = newState.get(i).pourInto(newState.get(j));
 
           String action = "pour_" + i + "_" + j;
-          Node child = new Node(newState, node, action, node.getPathCost() + 1, node.getHeuristic());
+          Node child = new Node(newState, node, action, node.getPathCost() + layers, node.getHeuristic()); // 3adely
+                                                                                                           // path cost
+                                                                                                           // hena
           children.add(child);
         }
       }
@@ -202,7 +204,7 @@ public class WaterSortSearch extends GenericSearch {
   }
 
   // Solve method as described in the project requirements
-  public String solve(String initialState, String strategy, boolean visualize) {
+  public static String solve(String initialState, String strategy, boolean visualize) {
     WaterSortSearch searchProblem = new WaterSortSearch(initialState);
     Node solutionNode = searchProblem.search(strategy);
 
@@ -222,7 +224,7 @@ public class WaterSortSearch extends GenericSearch {
   }
 
   // Helper method to visualize the solution (prints to console for debugging)
-  private void visualizeSolution(Node node) {
+  private static void visualizeSolution(Node node) {
     Node currentNode = node;
     Stack<Node> path = new Stack<>();
 
@@ -245,13 +247,13 @@ public class WaterSortSearch extends GenericSearch {
   }
 
   // Helper method to track nodes expanded (increment this during expansion)
-  private int nodesExpanded = 0;
+  private static int nodesExpanded = 0;
 
   private void incrementNodesExpanded() {
     nodesExpanded++;
   }
 
-  private int getNodesExpanded() {
+  private static int getNodesExpanded() {
     return nodesExpanded;
   }
 }

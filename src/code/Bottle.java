@@ -73,7 +73,7 @@ public class Bottle {
   }
 
   // Pour layers from this bottle to another bottle
-  public void pourInto(Bottle target) {
+  public int pourInto(Bottle target) {
     if (target.isFull()) {
       throw new IllegalStateException("Target bottle is full");
     }
@@ -88,6 +88,8 @@ public class Bottle {
     for (int i = 0; i < pourableLayers; i++) {
       target.addLayer(this.removeLayer());
     }
+    return pourableLayers;
+
   }
 
   // Get the current state of the bottle

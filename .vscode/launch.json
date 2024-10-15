@@ -1,0 +1,45 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    
+    {
+      "type": "java",
+      "name": "Main",
+      "request": "launch",
+      "mainClass": "code.Main",
+      "vmArgs": "-Xms512m -Xmx4048m",
+      "projectName": "AIProject_659dd339"
+    },
+    {
+      "type": "java",
+      "name": "JUnit Test",
+      "request": "launch",
+      "mainClass": "org.junit.platform.console.ConsoleLauncher", // JUnit console launcher
+      "classPaths": [
+        "Z:/AI/AIProject/lib/junit-platform-console-standalone-1.11.2.jar"  // Add the JAR file to the classpath
+      ],
+      "vmArgs": "-Xms512m -Xmx4048m",  // Increase heap size for JUnit tests
+      "args": [
+        "--select-package", "tests"  // Replace with the package of your tests
+      ]    },
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "cppdbg",
+      "request": "launch",
+      "args": [],
+      "stopAtEntry": false,
+      "externalConsole": true,
+      "cwd": "z:/AI/AIProject/src/tests",
+      "program": "z:/AI/AIProject/src/tests/build/Debug/outDebug",
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ]
+}
