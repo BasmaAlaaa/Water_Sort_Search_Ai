@@ -89,6 +89,9 @@ public class WaterSortSearch extends GenericSearch {
     List<Node> children = new ArrayList<>();
     List<Bottle> currentState = node.getState();
 
+    // Increment the number of expanded nodes
+    incrementNodesExpanded();
+
     for (int i = 0; i < currentState.size(); i++) {
       for (int j = 0; j < currentState.size(); j++) {
         if (i != j && isValidAction(currentState.get(i), currentState.get(j))) {
@@ -248,6 +251,10 @@ public class WaterSortSearch extends GenericSearch {
 
   // Helper method to track nodes expanded (increment this during expansion)
   private static int nodesExpanded = 0;
+
+  private static void incrementNodesExpanded() {
+    nodesExpanded++;
+  }
 
   private static int getNodesExpanded() {
     return nodesExpanded;

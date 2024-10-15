@@ -2,7 +2,7 @@ package code;
 
 public class Main {
   public static void main(String[] args) {
-    // String initialState = "5;4;b,y,r,b;b,y,r,r;y,r,b,y;e,e,e,e;e,e,e,e";
+    String initialState = "5;4;b,y,r,b;b,y,r,r;y,r,b,y;e,e,e,e;e,e,e,e";
     String grid0 = "3;" +
         "4;" +
         "r,y,r,y;" +
@@ -39,9 +39,9 @@ public class Main {
         "e,e,e;" +
         "e,e,e;";
 
-    String strategy = "GR1";
-    WaterSortSearch puzzle = new WaterSortSearch(grid2);
-    String result = puzzle.solve(grid2, strategy, true);
+    String strategy = "BF";
+    WaterSortSearch puzzle = new WaterSortSearch(initialState);
+    String result = puzzle.solve(initialState, strategy, true);
     System.out.println("Result: " + result);
   }
 }
