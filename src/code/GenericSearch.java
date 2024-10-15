@@ -1,16 +1,17 @@
 package code;
+
 import java.util.*;
 
 public abstract class GenericSearch {
 
-    // Abstract methods for the specific search problem
     public abstract boolean isGoalState(Node node);
 
     public abstract Node getInitialState();
 
     public abstract List<Node> expandNode(Node node);
 
-    // Method to perform a generic search using different strategies
+    protected abstract int getNodePriority(Node node, String strategy);
+
     public Node search(String strategy) {
         Queue<Node> frontier;
         switch (strategy) {
@@ -52,9 +53,9 @@ public abstract class GenericSearch {
         return null;
     }
 
-    // Informed search method with priority queue handling for UCS, Greedy, and A*
     private Node informedSearch(String strategy) {
-        PriorityQueue<Node> frontier = new PriorityQueue<>(Comparator.comparingInt(node -> getNodePriority(node, strategy)));
+        PriorityQueue<Node> frontier = new PriorityQueue<>(
+                Comparator.comparingInt(node -> getNodePriority(node, strategy)));
         Set<Node> explored = new HashSet<>();
         frontier.add(getInitialState());
 
@@ -75,7 +76,6 @@ public abstract class GenericSearch {
         return null;
     }
 
-    // Iterative Deepening Search (ID)
     private Node iterativeDeepeningSearch() {
         for (int depthLimit = 0;; depthLimit++) {
             Node result = depthLimitedSearch(getInitialState(), depthLimit);
@@ -85,7 +85,6 @@ public abstract class GenericSearch {
         }
     }
 
-    // Depth-Limited Search helper for ID
     private Node depthLimitedSearch(Node node, int depthLimit) {
         if (isGoalState(node)) {
             return node;
@@ -101,7 +100,4 @@ public abstract class GenericSearch {
         }
         return null;
     }
-
-    // Heuristic function for priority queue, based on the search strategy
-    protected abstract int getNodePriority(Node node, String strategy);
 }

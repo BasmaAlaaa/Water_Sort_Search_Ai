@@ -39,7 +39,7 @@ public class Main {
         "e,e,e;" +
         "e,e,e;";
 
-    String strategy = "BF";
+    String strategy = "AS1";
     WaterSortSearch puzzle = new WaterSortSearch(initialState);
     String result = puzzle.solve(initialState, strategy, true);
     System.out.println("Result: " + result);

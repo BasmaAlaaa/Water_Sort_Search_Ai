@@ -4,31 +4,26 @@ import java.util.Stack;
 
 public class Bottle {
 
-  private Stack<String> layers; // Stack to hold the layers of liquid
-  private int capacity; // Maximum capacity of the bottle
+  private Stack<String> layers;
+  private int capacity;
 
-  // Constructor
   public Bottle(int capacity) {
     this.capacity = capacity;
     this.layers = new Stack<>();
   }
 
-  // Check if the bottle is empty
   public boolean isEmpty() {
     return layers.isEmpty();
   }
 
-  // Check if the bottle is full
   public boolean isFull() {
     return layers.size() == capacity;
   }
 
-  // Get the topmost layer color
   public String topLayer() {
     return isEmpty() ? null : layers.peek();
   }
 
-  // Add a layer of liquid to the bottle
   public void addLayer(String color) {
     if (!isFull()) {
       layers.push(color);
@@ -37,7 +32,6 @@ public class Bottle {
     }
   }
 
-  // Remove and return the top layer of liquid
   public String removeLayer() {
     if (!isEmpty()) {
       return layers.pop();
@@ -46,7 +40,6 @@ public class Bottle {
     }
   }
 
-  // Check how many consecutive layers of the same color are on top
   public int countTopSameColorLayers() {
     if (isEmpty())
       return 0;
@@ -63,7 +56,6 @@ public class Bottle {
     return count;
   }
 
-  // Check how many empty spaces are left in the bottle
   public int emptySpaces() {
     return capacity - layers.size();
   }
@@ -72,14 +64,11 @@ public class Bottle {
     return capacity;
   }
 
-  // Pour layers from this bottle to another bottle
   public int pourInto(Bottle target) {
     if (target.isFull()) {
       throw new IllegalStateException("Target bottle is full");
     }
 
-    // Check if pouring is allowed (target bottle is either empty or has the same
-    // color on top)
     if (!target.isEmpty() && !this.topLayer().equals(target.topLayer())) {
       throw new IllegalStateException("Cannot pour into a bottle with a different top layer color");
     }
@@ -92,13 +81,28 @@ public class Bottle {
 
   }
 
-  // Get the current state of the bottle
   public Stack<String> getLayers() {
-    return (Stack<String>) layers.clone(); // Return a copy to avoid external modification
+    return (Stack<String>) layers.clone();
   }
 
-  // Print the bottle contents (for debugging)
   public void printBottle() {
     System.out.println("Bottle: " + layers.toString());
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null || getClass() != obj.getClass())
+      return false;
+
+    Bottle bottle = (Bottle) obj;
+    return this.getLayers().equals(bottle.getLayers());
+  }
+
+  @Override
+  public int hashCode() {
+    return getLayers().hashCode();
+  }
+
 }

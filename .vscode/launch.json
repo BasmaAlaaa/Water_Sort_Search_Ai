@@ -1,7 +1,13 @@
 {
   "version": "0.2.0",
   "configurations": [
-    
+    {
+      "type": "java",
+      "name": "Main",
+      "request": "launch",
+      "mainClass": "code.Main",
+      "projectName": "AIProject_78b2fd0e"
+    },
     {
       "type": "java",
       "name": "Main",
@@ -14,14 +20,16 @@
       "type": "java",
       "name": "JUnit Test",
       "request": "launch",
-      "mainClass": "org.junit.platform.console.ConsoleLauncher", // JUnit console launcher
+      "mainClass": "org.junit.platform.console.ConsoleLauncher",
       "classPaths": [
-        "Z:/AI/AIProject/lib/junit-platform-console-standalone-1.11.2.jar"  // Add the JAR file to the classpath
+        "Z:/AI/AIProject/lib/junit-platform-console-standalone-1.11.2.jar"
       ],
-      "vmArgs": "-Xms512m -Xmx4048m",  // Increase heap size for JUnit tests
+      "vmArgs": "-Xms512m -Xmx4048m",
       "args": [
-        "--select-package", "tests"  // Replace with the package of your tests
-      ]    },
+        "--select-package",
+        "tests"
+      ]
+    },
     {
       "name": "C/C++ Runner: Debug Session",
       "type": "cppdbg",
