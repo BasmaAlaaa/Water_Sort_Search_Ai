@@ -20,12 +20,12 @@ public class WaterSortSearch extends GenericSearch {
       String[] colors = parts[2 + i].split(",");
 
       List<String> reversedColors = Arrays.asList(colors);
-      Collections.reverse(reversedColors); 
+      Collections.reverse(reversedColors);
 
       Bottle bottle = new Bottle(bottleCapacity);
       for (String color : reversedColors) {
-        if (!color.equals("e")) { 
-          bottle.addLayer(color); 
+        if (!color.equals("e")) {
+          bottle.addLayer(color);
         }
       }
       bottles.add(bottle);
@@ -46,19 +46,19 @@ public class WaterSortSearch extends GenericSearch {
 
   private boolean isBottleSorted(Bottle bottle) {
     if (bottle.isEmpty()) {
-      return true; 
+      return true;
     }
 
     String topColor = bottle.topLayer();
     Stack<String> layers = bottle.getLayers();
 
-    if (layers.size() == bottle.getCapacity()) { 
+    if (layers.size() == bottle.getCapacity()) {
       for (String layer : layers) {
         if (!layer.equals(topColor)) {
           return false;
         }
       }
-      return true; 
+      return true;
     }
 
     return false;
@@ -69,7 +69,6 @@ public class WaterSortSearch extends GenericSearch {
     return new Node(initialState, null, null, 0, 0);
   }
 
-  
   @Override
   public List<Node> expandNode(Node node) {
     List<Node> children = new ArrayList<>();
@@ -78,34 +77,36 @@ public class WaterSortSearch extends GenericSearch {
     incrementNodesExpanded();
 
     for (int i = 0; i < currentState.size(); i++) {
-        for (int j = 0; j < currentState.size(); j++) {
-            if (i != j && isValidAction(currentState.get(i), currentState.get(j))) {
-                // Shallow copy the current state
-                List<Bottle> newState = new ArrayList<>(currentState);
+      for (int j = 0; j < currentState.size(); j++) {
+        if (i != j && isValidAction(currentState.get(i), currentState.get(j))) {
+          // Shallow copy the current state
+          List<Bottle> newState = new ArrayList<>(currentState);
 
-                // Deep copy only the bottles involved in the action
-                Bottle newBottleI = new Bottle(currentState.get(i).emptySpaces() + currentState.get(i).getLayers().size());
-                for (String layer : currentState.get(i).getLayers()) {
-                    newBottleI.addLayer(layer);
-                }
-                Bottle newBottleJ = new Bottle(currentState.get(j).emptySpaces() + currentState.get(j).getLayers().size());
-                for (String layer : currentState.get(j).getLayers()) {
-                    newBottleJ.addLayer(layer);
-                }
+          // Deep copy only the bottles involved in the action
+          Bottle newBottleI = new Bottle(currentState.get(i).emptySpaces() + currentState.get(i).getLayers().size());
+          for (String layer : currentState.get(i).getLayers()) {
+            newBottleI.addLayer(layer);
+          }
+          Bottle newBottleJ = new Bottle(currentState.get(j).emptySpaces() + currentState.get(j).getLayers().size());
+          for (String layer : currentState.get(j).getLayers()) {
+            newBottleJ.addLayer(layer);
+          }
 
-                newState.set(i, newBottleI);
-                newState.set(j, newBottleJ);
+          newState.set(i, newBottleI);
+          newState.set(j, newBottleJ);
 
-                int layers = newState.get(i).pourInto(newState.get(j));
+          int layers = newState.get(i).pourInto(newState.get(j));
 
-                String action = "pour_" + i + "_" + j;
-                Node child = new Node(newState, node, action, node.getPathCost() + layers, node.getHeuristic()); // 3adely path cost hena
-                children.add(child);
-            }
+          String action = "pour_" + i + "_" + j;
+          Node child = new Node(newState, node, action, node.getPathCost() + layers, node.getHeuristic()); // 3adely
+                                                                                                           // path cost
+                                                                                                           // hena
+          children.add(child);
         }
+      }
     }
     return children;
-}
+  }
 
   private boolean isValidAction(Bottle from, Bottle to) {
     return !from.isEmpty() && (to.isEmpty() || from.topLayer().equals(to.topLayer())) && !to.isFull();
@@ -199,7 +200,7 @@ public class WaterSortSearch extends GenericSearch {
 
     String plan = solutionNode.getSolutionPath();
     int pathCost = solutionNode.getPathCost();
-    int nodesExpanded = getNodesExpanded(); 
+    int nodesExpanded = getNodesExpanded();
     if (visualize) {
       visualizeSolution(solutionNode);
     }
@@ -223,7 +224,7 @@ public class WaterSortSearch extends GenericSearch {
         System.out.println("Action: " + n.getAction());
       }
       for (Bottle bottle : n.getState()) {
-        bottle.printBottle(); 
+        bottle.printBottle();
       }
       System.out.println("----------------------");
     }
